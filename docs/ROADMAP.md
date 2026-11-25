@@ -16,7 +16,7 @@ Estado: la compilación y el despliegue de esta base se verificaron en GitHub Ac
 
 ## Versión 0.3 — Interacción contextual y objetos manipulables
 
-Estado: primera implementación escrita en el código. Pendiente de compilación y pruebas táctiles reales.
+Estado: compilación y despliegue de la implementación verificados en GitHub Actions. Pendiente de pruebas táctiles reales en celular y tablet.
 
 - Indicador contextual que solo aparece al apuntar a un objeto cercano.
 - Contorno de color para señalar el objeto enfocado.
