@@ -1,0 +1,21 @@
+{
+  "name": "don-pedro",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Simulador mobile de una tiendita mexicana en 3D low poly retro.",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "vite": "^8.3.8"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}
