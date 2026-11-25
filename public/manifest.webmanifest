@@ -1,0 +1,19 @@
+{
+  "name": "DON PEDRO — La tiendita",
+  "short_name": "DON PEDRO",
+  "description": "Simulador 3D de una tiendita mexicana.",
+  "start_url": "/Don-Pedro/",
+  "scope": "/Don-Pedro/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#a8bd9d",
+  "theme_color": "#8c2929",
+  "icons": [
+    {
+      "src": "/Don-Pedro/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
