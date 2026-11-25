@@ -1,7 +1,7 @@
 {
   "name": "DON PEDRO — La tiendita",
   "short_name": "DON PEDRO",
-  "description": "Simulador 3D de una tiendita mexicana.",
+  "description": "Simulador 3D de una tiendita mexicana y su barrio.",
   "start_url": "/Don-Pedro/",
   "scope": "/Don-Pedro/",
   "display": "fullscreen",
