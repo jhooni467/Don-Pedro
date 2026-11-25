@@ -1,56 +1,55 @@
 # DON PEDRO — Hoja de ruta
 
-Este documento separa las funciones implementadas de las siguientes metas. Una tarea no se marca como terminada hasta revisar el código y verificar la compilación; las funciones de juego también requieren pruebas reales en celular o tablet.
+Este documento separa las funciones programadas de las verificadas. Ninguna función se declara terminada solo porque el código se haya guardado: la compilación debe pasar y las interacciones deben probarse en celular o tablet.
 
 ## Versión 0.2 — Mundo explorable y controles
 
-Estado: compilación y despliegue de la versión base verificados. Pruebas físicas en dispositivos todavía pendientes.
+Estado: la compilación y el despliegue de esta base se verificaron en GitHub Actions. La validación física en dispositivos sigue pendiente.
 
-- [x] Escenario 3D de la tiendita.
-- [x] Entrada frontal abierta y suelo conectado a la banqueta.
-- [x] Pequeña zona exterior de barrio con calle, casas, árboles y objetos.
-- [x] Personaje provisional de Don Pedro.
-- [x] Joystick fijo.
-- [x] Cámara con zoom desde vista elevada hasta primera persona.
-- [x] Gestos táctiles para mirar y hacer zoom.
-- [x] Refrigerador interactivo con puerta animada.
-- [x] Colisiones básicas para parte del mobiliario y el entorno.
-- [ ] Prueba de recorrido y colisiones en celular y tablet.
-- [ ] Ajustar límites, sensibilidad y respuesta de cámara según pruebas reales.
+- Escenario 3D de la tiendita con entrada frontal abierta.
+- Banqueta, calle y pequeño sector de barrio con casas, árboles y objetos.
+- Personaje provisional de Don Pedro.
+- Joystick fijo y cámara híbrida con zoom hasta primera persona.
+- Gestos táctiles para mirar y hacer zoom.
+- Refrigerador rojo con puerta animada.
+- Colisiones básicas para parte del mobiliario y del entorno.
 
-## Versión 0.3 — Interacción física con productos (siguiente fase)
+## Versión 0.3 — Interacción contextual y objetos manipulables
 
-Objetivo: que la tiendita empiece a sentirse como un lugar con objetos manipulables, no solo como un escenario para recorrer.
+Estado: primera implementación escrita en el código. Pendiente de compilación y pruebas táctiles reales.
 
-Orden de implementación:
+- Indicador contextual que solo aparece al apuntar a un objeto cercano.
+- Contorno de color para señalar el objeto enfocado.
+- Prompt contextual con acción e icono: ABRIR, CERRAR, RECOGER o SOLTAR.
+- Progreso circular mientras se mantiene pulsado.
+- Interacción directa sobre el prompt o manteniendo pulsado el propio objeto.
+- Refrigerador: apertura hacia el exterior y cierre animado.
+- Botella de refresco de prueba sobre un estante.
+- Recoger la botella y transportarla delante de Don Pedro.
+- Soltar la botella en el suelo cerca del personaje.
 
-1. Crear un primer producto 3D reconocible y ligero (por ejemplo, una botella de refresco genérica).
-2. Permitir seleccionarlo mediante toque prolongado, sin botón de acción.
-3. Al recogerlo, mantenerlo delante de Don Pedro o en sus manos, con una posición coherente en primera y tercera persona.
-4. Permitir soltarlo sobre una superficie válida, como el mostrador o un estante.
-5. Comprobar que no atraviese el suelo, paredes ni mobiliario y que no se quede flotando.
-6. Añadir respuesta visual y sonora discreta al recoger y colocar.
-7. Reutilizar el mismo sistema para más productos cuando el primero esté probado.
+Criterios de aceptación pendientes de pruebas:
+- El progreso circular debe avanzar de forma continua y reiniciarse al soltar antes de tiempo.
+- El contorno y prompt solo deben aparecer para objetos cercanos y enfocados.
+- La acción no debe activarse al arrastrar para mirar ni al pellizcar para hacer zoom.
+- No se debe poder interactuar con objetos que estén fuera de alcance.
+- La puerta del refrigerador debe girar hacia afuera, sin atravesar su cuerpo.
+- La botella debe seguir a Don Pedro sin bloquear el joystick ni la cámara.
+- La botella debe poder soltarse y recogerse de nuevo.
+- Probar todo en teléfono y tablet, en horizontal.
 
-Criterios de aceptación:
-- El gesto de arrastrar para mirar no debe recoger objetos accidentalmente.
-- El joystick fijo debe seguir funcionando mientras se usa la interacción con la otra mano.
-- Recoger, mover y soltar debe poder hacerse con controles táctiles cómodos.
-- Ninguna acción debe necesitar un botón flotante.
-- Los objetos deben colocarse en superficies permitidas y respetar colisiones.
-- La prueba debe realizarse en un teléfono y, cuando sea posible, en una tablet.
+## Versión 0.4 — Colocación física e inventario
 
-## Versión 0.4 — Estanterías e inventario físico
-
-- Colocar productos en espacios de estantes.
-- Retirar productos y actualizar cantidades.
-- Definir zonas de almacenamiento y cajas de mercancía.
-- Indicar visualmente los espacios ocupados y vacíos.
+- Colocar productos sobre superficies válidas del mostrador y los estantes.
+- Alinear productos con espacios y repisas.
+- Evitar que se atraviesen entre sí, las paredes o el mobiliario.
+- Almacenar cantidades y reponer productos desde cajas.
+- Mostrar espacios ocupados y vacíos.
 
 ## Versión 0.5 — Primer ciclo de tienda
 
 - Añadir uno o dos clientes de prueba.
-- Permitir que el cliente elija un producto.
+- Permitir que un cliente elija un producto.
 - Crear una primera secuencia de venta en mostrador.
 - Añadir cobro básico y actualización de caja.
 
@@ -64,6 +63,6 @@ Criterios de aceptación:
 - Guardado persistente.
 - Empaquetado Android con modo inmersivo real.
 
-## Registro de cámara — siguiente ajuste
+## Registro de cámara
 
-La cámara de seguimiento tenía una interpolación de posición con respuesta 8. En la siguiente revisión se elevó a 22 para reducir el retraso y la sensación flotante. Este ajuste requiere validación en el dispositivo del jugador; no se considera aprobado hasta recibir esa prueba.
+La respuesta de seguimiento se ajustó de 8 a 22 para reducir el retraso de la cámara. El valor queda como ajuste experimental hasta validarlo en el dispositivo del jugador.
