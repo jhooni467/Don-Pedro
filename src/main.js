@@ -378,6 +378,37 @@ function createFridge() {
 const fridge = createFridge();
 const interactables = [fridge];
 
+function registerInteractableOutline(object) {
+  const outline = new THREE.BoxHelper(object, 0xffdf65);
+  outline.visible = false;
+  outline.renderOrder = 20;
+  if (outline.material) { outline.material.depthTest = false; outline.material.transparent = true; outline.material.opacity = 0.95; }
+  scene.add(outline);
+  object.userData.outline = outline;
+}
+registerInteractableOutline(fridge);
+
+function createTestBottle() {
+  const bottle = new THREE.Group();
+  bottle.position.set(-4.15, 0.78, -5.72);
+  scene.add(bottle);
+  const liquid = mat(0x9a4b28);
+  const labelMat = mat(0xf0e5cf);
+  cylinder(bottle, 0.105, 0.115, 0.38, 7, liquid, 0, 0.22, 0);
+  cylinder(bottle, 0.055, 0.07, 0.13, 7, liquid, 0, 0.475, 0);
+  cylinder(bottle, 0.065, 0.065, 0.055, 7, mats.red, 0, 0.565, 0);
+  cylinder(bottle, 0.116, 0.116, 0.105, 7, labelMat, 0, 0.22, 0);
+  box(bottle, 0.18, 0.11, 0.012, mats.red, 0, 0.22, 0.112);
+  bottle.userData.interactable = true;
+  bottle.userData.kind = "product";
+  bottle.userData.displayName = "Botella de refresco";
+  bottle.userData.isHeld = false;
+  registerInteractableOutline(bottle);
+  interactables.push(bottle);
+  return bottle;
+}
+const testBottle = createTestBottle();
+
 // ----- Mostrador y caja -----
 
 const counter = new THREE.Group();
@@ -748,7 +779,7 @@ function interactWith(object) {
 
   if (object.userData.kind === "fridge") {
     object.userData.isOpen = !object.userData.isOpen;
-    object.userData.targetAngle = object.userData.isOpen ? -1.18 : 0;
+    object.userData.targetAngle = object.userData.isOpen ? 1.18 : 0;
     showToast(object.userData.isOpen ? "Refrigerador abierto" : "Refrigerador cerrado");
     hint.textContent = "Refrigerador · Mantén pulsado para abrir o cerrar";
   }
