@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="108" fill="#8c2929"/>
+  <path d="M76 208h360v220H76z" fill="#ead7b8"/>
+  <path d="M54 208 256 76l202 132z" fill="#c64c3e"/>
+  <path d="M100 238h312v34H100z" fill="#f5eee0"/>
+  <path d="M128 302h104v126H128z" fill="#9db0a0"/>
+  <path d="M256 302h104v126H256z" fill="#9db0a0"/>
+  <path d="M214 348h84v80h-84z" fill="#76543d"/>
+  <text x="256" y="190" font-family="Arial,sans-serif" font-size="43" font-weight="900" text-anchor="middle" fill="#fff5e7">DP</text>
+</svg>
