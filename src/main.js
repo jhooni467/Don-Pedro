@@ -929,16 +929,8 @@ renderer.domElement.addEventListener("pointerdown", (event) => {
   lookStartY = event.clientY;
   lastLookX = event.clientX;
   lastLookY = event.clientY;
-  holdTriggered = false;
-  holdTarget = getInteractableAt(event.clientX, event.clientY);
-
-  cancelHold();
-  if (holdTarget) {
-    holdTimer = window.setTimeout(() => {
-      holdTriggered = true;
-      interactWith(holdTarget);
-    }, 520);
-  }
+  const touchedTarget = getInteractableAt(event.clientX, event.clientY);
+  if (touchedTarget) beginHold(touchedTarget, "world", event.pointerId);
 });
 
 renderer.domElement.addEventListener("pointermove", (event) => {
@@ -966,7 +958,7 @@ renderer.domElement.addEventListener("pointermove", (event) => {
     event.clientY - lookStartY
   );
 
-  if (totalMovement > 9) cancelHold();
+  if (totalMovement > 9 && holdSource === "world" && event.pointerId === holdPointerId) cancelHold();
 
   if (totalMovement > 5) {
     const dx = event.clientX - lastLookX;
@@ -985,18 +977,12 @@ renderer.domElement.addEventListener("pointermove", (event) => {
 function finishWorldPointer(event) {
   activePointers.delete(event.pointerId);
   if (activePointers.size < 2) pinchStartDistance = 0;
-
   if (event.pointerId === lookPointerId) {
-    cancelHold();
-    if (
-      !holdTriggered &&
-      holdTarget &&
-      Math.hypot(event.clientX - lookStartX, event.clientY - lookStartY) < 9
-    ) {
-      showToast("Mantén pulsado para interactuar.");
+    if (holdSource === "world" && event.pointerId === holdPointerId) {
+      if (!holdTriggered && holdTarget) showToast("Mantén pulsado para completar la acción.");
+      cancelHold();
     }
     lookPointerId = null;
-    holdTarget = null;
   }
 }
 
@@ -1073,20 +1059,32 @@ function movePlayer(delta) {
 
 const clock = new THREE.Clock();
 
+function updateHeldProduct() {
+  if (!heldProduct) return;
+  if (isFirstPerson) {
+    camera.getWorldDirection(cameraDirection);
+    heldProduct.position.copy(camera.position).addScaledVector(cameraDirection, 0.72);
+    heldProduct.rotation.set(0, cameraYaw, 0);
+  } else {
+    worldForward.set(-Math.sin(player.rotation.y), 0, -Math.cos(player.rotation.y));
+    heldProduct.position.set(
+      player.position.x + worldForward.x * 0.58,
+      player.position.y + 1.12,
+      player.position.z + worldForward.z * 0.58
+    );
+    heldProduct.rotation.set(0, player.rotation.y, 0);
+  }
+}
+
 function animate() {
   const delta = Math.min(clock.getDelta(), 0.04);
-
   movePlayer(delta);
-
   const currentAngle = fridge.userData.hinge.rotation.y;
-  fridge.userData.hinge.rotation.y = THREE.MathUtils.damp(
-    currentAngle,
-    fridge.userData.targetAngle,
-    7,
-    delta
-  );
-
+  fridge.userData.hinge.rotation.y = THREE.MathUtils.damp(currentAngle, fridge.userData.targetAngle, 7, delta);
   updateCamera(delta);
+  updateHeldProduct();
+  updateInteractionUI();
+  updateHoldProgress();
   renderer.render(scene, camera);
   requestAnimationFrame(animate);
 }
