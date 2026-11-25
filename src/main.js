@@ -577,7 +577,7 @@ function updateCamera(delta) {
     player.position.z + cameraForward.z * THREE.MathUtils.lerp(0.0, 2.8, zoom)
   );
 
-  camera.position.lerp(desiredCameraPosition, 1 - Math.exp(-delta * 8));
+  camera.position.lerp(desiredCameraPosition, 1 - Math.exp(-delta * 22));
   camera.lookAt(cameraTarget);
 
   const nextFirstPerson = cameraZoom > 0.965;
