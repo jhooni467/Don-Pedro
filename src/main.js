@@ -723,7 +723,15 @@ window.addEventListener("orientationchange", () => {
 
 const raycaster = new THREE.Raycaster();
 const pointerNdc = new THREE.Vector2();
+const centerNdc = new THREE.Vector2(0, 0);
 const activePointers = new Map();
+const interactionPrompt = document.querySelector("#interaction-prompt");
+const interactionAction = document.querySelector("#interaction-action");
+const interactionTitle = document.querySelector("#interaction-title");
+const interactionSubtitle = document.querySelector("#interaction-subtitle");
+const interactionSymbol = document.querySelector("#interaction-symbol");
+const interactionProgress = document.querySelector("#interaction-progress");
+if (!interactionPrompt || !interactionAction || !interactionProgress) throw new Error("Falta el indicador contextual de interacción.");
 
 let pinchStartDistance = 0;
 let pinchStartZoom = cameraZoom;
@@ -732,25 +740,29 @@ let lookStartX = 0;
 let lookStartY = 0;
 let lastLookX = 0;
 let lastLookY = 0;
-let holdTimer = null;
 let holdTarget = null;
+let holdStartedAt = 0;
 let holdTriggered = false;
+let holdSource = null;
+let holdPointerId = null;
+let focusedInteractable = null;
+let heldProduct = null;
 let toastTimer = null;
+const HOLD_DURATION = 720;
+const projectedPromptPoint = new THREE.Vector3();
+const worldForward = new THREE.Vector3();
+const cameraDirection = new THREE.Vector3();
 
 function showToast(message) {
   toast.textContent = message;
   toast.classList.add("visible");
   window.clearTimeout(toastTimer);
-  toastTimer = window.setTimeout(() => {
-    toast.classList.remove("visible");
-  }, 1700);
+  toastTimer = window.setTimeout(() => toast.classList.remove("visible"), 1700);
 }
 
-function cancelHold() {
-  if (holdTimer !== null) {
-    window.clearTimeout(holdTimer);
-    holdTimer = null;
-  }
+function getRootInteractable(object) {
+  while (object && !object.userData.interactable) object = object.parent;
+  return object || null;
 }
 
 function getInteractableAt(clientX, clientY) {
@@ -758,33 +770,137 @@ function getInteractableAt(clientX, clientY) {
   pointerNdc.x = ((clientX - rect.left) / rect.width) * 2 - 1;
   pointerNdc.y = -((clientY - rect.top) / rect.height) * 2 + 1;
   raycaster.setFromCamera(pointerNdc, camera);
+  const hits = raycaster.intersectObjects(interactables, true);
+  return hits.length ? getRootInteractable(hits[0].object) : null;
+}
 
+function getFocusedInteractable() {
+  if (heldProduct) return heldProduct;
+  raycaster.setFromCamera(centerNdc, camera);
   const hits = raycaster.intersectObjects(interactables, true);
   if (!hits.length) return null;
+  const object = getRootInteractable(hits[0].object);
+  if (!object) return null;
+  const dx = player.position.x - object.position.x;
+  const dz = player.position.z - object.position.z;
+  return Math.hypot(dx, dz) <= 3.65 ? object : null;
+}
 
-  let object = hits[0].object;
-  while (object && !object.userData.interactable) object = object.parent;
-  return object || null;
+function beginHold(object, source, pointerId) {
+  if (!object || !object.userData.interactable) return;
+  holdTarget = object;
+  holdStartedAt = performance.now();
+  holdTriggered = false;
+  holdSource = source;
+  holdPointerId = pointerId;
+  interactionProgress.style.setProperty("--progress", "0%");
+  interactionPrompt.classList.add("holding");
+}
+
+function cancelHold() {
+  holdTarget = null;
+  holdStartedAt = 0;
+  holdTriggered = false;
+  holdSource = null;
+  holdPointerId = null;
+  interactionPrompt.classList.remove("holding");
+  interactionProgress.style.setProperty("--progress", "0%");
 }
 
 function interactWith(object) {
   if (!object || !object.userData.interactable) return;
-
-  const dx = player.position.x - object.position.x;
-  const dz = player.position.z - object.position.z;
-  if (Math.hypot(dx, dz) > 3.0) {
-    showToast("Acércate un poco más.");
-    return;
-  }
-
   if (object.userData.kind === "fridge") {
     object.userData.isOpen = !object.userData.isOpen;
+    // Local +Z is the fridge front; positive rotation swings the free edge outward.
     object.userData.targetAngle = object.userData.isOpen ? 1.18 : 0;
     showToast(object.userData.isOpen ? "Refrigerador abierto" : "Refrigerador cerrado");
-    hint.textContent = "Refrigerador · Mantén pulsado para abrir o cerrar";
+    return;
+  }
+  if (object.userData.kind === "product") {
+    if (!object.userData.isHeld) {
+      object.userData.isHeld = true;
+      heldProduct = object;
+      showToast("Recogiste la botella");
+    } else {
+      object.userData.isHeld = false;
+      heldProduct = null;
+      worldForward.set(-Math.sin(player.rotation.y), 0, -Math.cos(player.rotation.y));
+      object.position.set(player.position.x + worldForward.x * 0.9, 0, player.position.z + worldForward.z * 0.9);
+      object.rotation.set(0, player.rotation.y, 0);
+      showToast("Dejaste la botella en el suelo");
+    }
   }
 }
 
+function updateInteractionUI() {
+  focusedInteractable = getFocusedInteractable();
+  for (const object of interactables) {
+    const outline = object.userData.outline;
+    if (!outline) continue;
+    outline.visible = object === focusedInteractable;
+    if (outline.visible) outline.update();
+  }
+  if (!focusedInteractable) {
+    interactionPrompt.classList.remove("visible");
+    interactionPrompt.setAttribute("aria-hidden", "true");
+    return;
+  }
+  const object = focusedInteractable;
+  if (object.userData.kind === "fridge") {
+    interactionTitle.textContent = object.userData.isOpen ? "CERRAR" : "ABRIR";
+    interactionSubtitle.textContent = "MANTÉN PULSADO";
+    interactionSymbol.textContent = "👆";
+  } else {
+    interactionTitle.textContent = object.userData.isHeld ? "SOLTAR" : "RECOGER";
+    interactionSubtitle.textContent = "MANTÉN PULSADO";
+    interactionSymbol.textContent = "✋";
+  }
+  object.getWorldPosition(projectedPromptPoint);
+  projectedPromptPoint.y += object.userData.kind === "fridge" ? 2.45 : 0.68;
+  projectedPromptPoint.project(camera);
+  const x = (projectedPromptPoint.x * 0.5 + 0.5) * window.innerWidth;
+  const y = (-projectedPromptPoint.y * 0.5 + 0.5) * window.innerHeight;
+  const visible = projectedPromptPoint.z > -1 && projectedPromptPoint.z < 1 && x > 36 && x < window.innerWidth - 36 && y > 56 && y < window.innerHeight - 24;
+  if (visible) {
+    interactionPrompt.style.left = x + "px";
+    interactionPrompt.style.top = y + "px";
+    interactionPrompt.classList.add("visible");
+    interactionPrompt.setAttribute("aria-hidden", "false");
+  } else {
+    interactionPrompt.classList.remove("visible");
+    interactionPrompt.setAttribute("aria-hidden", "true");
+  }
+}
+
+function updateHoldProgress() {
+  if (!holdTarget || holdTriggered || !holdStartedAt) return;
+  const progress = Math.min(1, (performance.now() - holdStartedAt) / HOLD_DURATION);
+  interactionProgress.style.setProperty("--progress", (progress * 100).toFixed(1) + "%");
+  if (progress >= 1) {
+    const target = holdTarget;
+    holdTriggered = true;
+    interactWith(target);
+    cancelHold();
+  }
+}
+
+interactionAction.addEventListener("pointerdown", (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  if (!focusedInteractable) return;
+  try { interactionAction.setPointerCapture(event.pointerId); } catch (_) {}
+  beginHold(focusedInteractable, "prompt", event.pointerId);
+});
+
+function finishPromptHold(event) {
+  if (holdSource === "prompt" && event.pointerId === holdPointerId) {
+    if (!holdTriggered) showToast("Mantén pulsado para completar la acción.");
+    cancelHold();
+  }
+}
+interactionAction.addEventListener("pointerup", finishPromptHold);
+interactionAction.addEventListener("pointercancel", finishPromptHold);
+interactionAction.addEventListener("lostpointercapture", finishPromptHold);
 renderer.domElement.addEventListener("pointerdown", (event) => {
   event.preventDefault();
   requestImmersiveLandscape();
