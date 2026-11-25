@@ -1,0 +1,235 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap");
+
+:root {
+  color-scheme: dark;
+  font-family: "Nunito", "Trebuchet MS", system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --cream: #f6ead4;
+  --red: #8c2929;
+  --red-light: #b94c40;
+  --ink: #3a3028;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#game-root {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  margin: 0;
+  overflow: hidden;
+  background: #a8bd9d;
+  overscroll-behavior: none;
+}
+
+body {
+  position: fixed;
+  inset: 0;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#game-root {
+  position: fixed;
+  inset: 0;
+}
+
+#game-root canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  outline: none;
+}
+
+#hud {
+  position: fixed;
+  z-index: 5;
+  inset: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) auto max(12px, env(safe-area-inset-left));
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: none;
+  gap: 10px;
+}
+
+.brand-card,
+.cash-card {
+  color: var(--ink);
+  background: rgba(246, 234, 212, 0.92);
+  border: 2px solid rgba(83, 57, 42, 0.18);
+  border-radius: 14px;
+  box-shadow: 0 4px 0 rgba(56, 43, 31, 0.16);
+  padding: 8px 12px;
+  backdrop-filter: blur(5px);
+}
+
+.brand-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.brand-name {
+  font-size: clamp(13px, 2.2vw, 18px);
+  line-height: 1.1;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.brand-subtitle,
+.cash-label {
+  font-size: 9px;
+  line-height: 1.3;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  opacity: 0.7;
+}
+
+.cash-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 86px;
+}
+
+.cash-value {
+  font-size: clamp(13px, 2vw, 17px);
+  font-weight: 900;
+}
+
+.hint-card {
+  position: fixed;
+  z-index: 5;
+  top: max(72px, calc(env(safe-area-inset-top) + 64px));
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: min(86vw, 420px);
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  color: #fff8e9;
+  background: rgba(48, 43, 36, 0.72);
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: 0.025em;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  backdrop-filter: blur(6px);
+}
+
+.toast {
+  position: fixed;
+  z-index: 8;
+  left: 50%;
+  bottom: max(142px, calc(env(safe-area-inset-bottom) + 132px));
+  transform: translate(-50%, 12px);
+  max-width: min(86vw, 400px);
+  padding: 9px 15px;
+  border-radius: 12px;
+  color: #fff8e9;
+  background: rgba(50, 39, 31, 0.88);
+  font-size: 12px;
+  font-weight: 900;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 160ms ease, transform 160ms ease;
+  pointer-events: none;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.joystick {
+  position: fixed;
+  z-index: 10;
+  left: max(20px, env(safe-area-inset-left));
+  bottom: max(22px, env(safe-area-inset-bottom));
+  width: 116px;
+  height: 116px;
+  display: grid;
+  place-items: center;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.joystick-ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgba(255, 248, 232, 0.52);
+  border-radius: 50%;
+  background: rgba(50, 43, 35, 0.23);
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.13), 0 3px 12px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(3px);
+}
+
+.joystick-knob {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  background: rgba(246, 234, 212, 0.86);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  transform: translate(0, 0);
+  pointer-events: none;
+}
+
+.gesture-help {
+  position: fixed;
+  z-index: 5;
+  right: max(15px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  color: rgba(255, 250, 235, 0.92);
+  font-size: clamp(8px, 1.4vw, 10px);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-align: right;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+}
+
+@media (max-width: 540px) {
+  .joystick {
+    width: 104px;
+    height: 104px;
+  }
+
+  .joystick-knob {
+    width: 44px;
+    height: 44px;
+  }
+
+  .gesture-help {
+    max-width: 48vw;
+  }
+
+  .hint-card {
+    top: max(66px, calc(env(safe-area-inset-top) + 60px));
+  }
+}
+
+@media (orientation: portrait) {
+  .joystick {
+    width: 100px;
+    height: 100px;
+  }
+}
