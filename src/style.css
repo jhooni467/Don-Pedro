@@ -275,3 +275,106 @@ body {
     height: 50px;
   }
 }
+/* Roblox-style contextual interaction prompt: only visible while aiming at a nearby object. */
+.interaction-prompt {
+  position: fixed;
+  z-index: 15;
+  transform: translate(-50%, -115%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 120ms ease, visibility 120ms ease;
+}
+
+.interaction-prompt.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.interaction-action {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 142px;
+  padding: 7px 12px 7px 8px;
+  border: 1px solid rgba(255, 248, 225, 0.6);
+  border-radius: 14px;
+  color: #fff8e9;
+  background: rgba(47, 43, 36, 0.9);
+  box-shadow: 0 4px 0 rgba(24, 22, 18, 0.28), 0 8px 20px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(7px);
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+
+.interaction-progress {
+  --progress: 0%;
+  position: relative;
+  flex: 0 0 39px;
+  width: 39px;
+  height: 39px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: conic-gradient(#f0cd69 var(--progress), rgba(255, 255, 255, 0.24) 0);
+  transition: filter 100ms ease;
+}
+
+.interaction-progress::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: #494235;
+}
+
+.interaction-progress-inner {
+  position: relative;
+  z-index: 1;
+  width: 29px;
+  height: 29px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff6df;
+  font-size: 16px;
+}
+
+.interaction-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.interaction-copy strong {
+  font-size: 12px;
+  line-height: 1.1;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+}
+
+.interaction-copy small {
+  color: rgba(255, 248, 233, 0.72);
+  font-size: 8px;
+  line-height: 1.2;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+}
+
+.interaction-action:active {
+  transform: scale(0.97);
+}
+
+.interaction-prompt.holding .interaction-progress {
+  filter: drop-shadow(0 0 5px rgba(240, 205, 105, 0.45));
+}
+
+@media (max-width: 540px) {
+  .interaction-action { min-width: 128px; padding: 6px 9px 6px 7px; gap: 7px; }
+  .interaction-progress { width: 35px; height: 35px; flex-basis: 35px; }
+  .interaction-progress-inner { width: 26px; height: 26px; font-size: 14px; }
+}
