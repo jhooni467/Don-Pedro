@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#8c2929" />
+    <meta name="description" content="DON PEDRO: una tiendita mexicana, un gran negocio." />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="%BASE_URL%manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%icon.svg" />
+    <title>DON PEDRO — La tiendita</title>
+  </head>
+  <body>
+    <main id="game-root" aria-label="Mundo 3D de Don Pedro"></main>
+
+    <section id="hud" aria-label="Información del juego">
+      <div class="brand-card">
+        <span class="brand-name">DON PEDRO</span>
+        <span class="brand-subtitle">MI TIENDITA · DÍA 1</span>
+      </div>
+      <div class="cash-card">
+        <span class="cash-label">CAJA</span>
+        <span class="cash-value">$250.00</span>
+      </div>
+    </section>
+
+    <div id="hint" class="hint-card">Explora tu tiendita</div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <div id="joystick" class="joystick" aria-label="Joystick fijo para caminar">
+      <div class="joystick-ring"></div>
+      <div id="joystick-knob" class="joystick-knob"></div>
+    </div>
+
+    <div class="gesture-help">
+      <span>ARRASTRA PARA MIRAR</span>
+      <span>PELLIZCA PARA ZOOM</span>
+      <span>MANTÉN PULSADO PARA INTERACTUAR</span>
+    </div>
+
+    <script type="module" src="%BASE_URL%src/main.js"></script>
+  </body>
+</html>
