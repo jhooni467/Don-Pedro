@@ -809,6 +809,12 @@ function cancelHold() {
 
 function interactWith(object) {
   if (!object || !object.userData.interactable) return;
+  const rangeX = player.position.x - object.position.x;
+  const rangeZ = player.position.z - object.position.z;
+  if (Math.hypot(rangeX, rangeZ) > 3.65) {
+    showToast("Acércate más para interactuar.");
+    return;
+  }
   if (object.userData.kind === "fridge") {
     object.userData.isOpen = !object.userData.isOpen;
     // Local +Z is the fridge front; positive rotation swings the free edge outward.
@@ -833,7 +839,7 @@ function interactWith(object) {
 }
 
 function updateInteractionUI() {
-  focusedInteractable = getFocusedInteractable();
+  focusedInteractable = holdTarget || getFocusedInteractable();
   for (const object of interactables) {
     const outline = object.userData.outline;
     if (!outline) continue;
