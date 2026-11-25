@@ -75,3 +75,7 @@ Incluye:
 - Colisiones básicas.
 
 Todavía no incluye clientes, inventario real, cobros, proveedores, guardado ni progresión económica. Se añadirán después de validar controles y exploración en teléfonos y tablets.
+
+## Siguiente fase
+
+La siguiente fase de desarrollo es la interacción física con productos: recoger un primer producto, moverlo y colocarlo sobre el mostrador o un estante mediante gestos táctiles, sin botones de acción. La hoja de ruta y sus criterios de aceptación están en [docs/ROADMAP.md](docs/ROADMAP.md).
