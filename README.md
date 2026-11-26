@@ -78,7 +78,7 @@ Todavía no incluye clientes, inventario real, cobros, proveedores, guardado ni 
 
 ## Interacción contextual (prototipo 0.3)
 
-El código incluye un indicador contextual que aparece al enfocar objetos cercanos, con contorno resaltado y progreso circular al mantener pulsado. El refrigerador puede abrirse/cerrarse y hay una botella de prueba que puede recogerse, transportarse y soltarse en el suelo.
+El código incluye un indicador contextual con progreso circular. En el refrigerador, la acción se dirige al asa: el jugador debe mantenerla pulsada para abrir o cerrar. Una botella de prueba puede recogerse, transportarse y soltarse en el suelo.
 
 Esta implementación aún requiere compilación y pruebas táctiles reales. La colocación de productos sobre estantes y mostradores queda para la siguiente iteración.
 

@@ -16,9 +16,11 @@ Estado: la compilación y el despliegue de esta base se verificaron en GitHub Ac
 
 ## Versión 0.3 — Interacción contextual y objetos manipulables
 
-Estado: compilación y despliegue de la implementación verificados en GitHub Actions. Pendiente de pruebas táctiles reales en celular y tablet.
+Estado: compilación y despliegue de la implementación anterior verificados. Esta mejora de selección del asa queda pendiente de su nueva compilación y de pruebas táctiles reales en celular y tablet.
 
 - Indicador contextual que solo aparece al apuntar a un objeto cercano.
+- En el refrigerador, el objetivo de interacción es exclusivamente el asa; el contorno se dibuja alrededor de esa pieza y no de toda la nevera.
+- El aviso ABRIR/CERRAR se posiciona junto al asa y explica que hay que agarrarla.
 - Contorno de color para señalar el objeto enfocado.
 - Prompt contextual con acción e icono: ABRIR, CERRAR, RECOGER o SOLTAR.
 - Progreso circular mientras se mantiene pulsado.

@@ -356,7 +356,15 @@ function createFridge() {
 
   box(door, 1.36, 1.96, 0.10, mats.redLight, 0, 0, 0);
   box(door, 1.15, 1.72, 0.025, mats.glass, 0, 0.03, 0.065);
-  box(door, 0.055, 0.58, 0.08, mats.cream, 0.57, -0.08, 0.11);
+  const handle = box(door, 0.055, 0.58, 0.08, mats.cream, -0.57, -0.08, 0.11);
+  const handleOutline = new THREE.LineSegments(
+    new THREE.EdgesGeometry(new THREE.BoxGeometry(0.15, 0.69, 0.14)),
+    new THREE.LineBasicMaterial({ color: 0xffdf65, depthTest: false, transparent: true, opacity: 0.98 })
+  );
+  handleOutline.position.copy(handle.position);
+  handleOutline.visible = false;
+  handleOutline.renderOrder = 21;
+  door.add(handleOutline);
 
   const label = new THREE.Mesh(
     new THREE.PlaneGeometry(0.98, 0.21),
@@ -369,6 +377,9 @@ function createFridge() {
   group.userData.kind = "fridge";
   group.userData.displayName = "Refrigerador";
   group.userData.hinge = hinge;
+  group.userData.handle = handle;
+  group.userData.handleOutline = handleOutline;
+  group.userData.interactionAnchor = handle;
   group.userData.isOpen = false;
   group.userData.targetAngle = 0;
   addCollider(-6.55, -4.65, 0.67, 0.83);
@@ -379,12 +390,21 @@ const fridge = createFridge();
 const interactables = [fridge];
 
 function registerInteractableOutline(object) {
-  const outline = new THREE.BoxHelper(object, 0xffdf65);
-  outline.visible = false;
-  outline.renderOrder = 20;
-  if (outline.material) { outline.material.depthTest = false; outline.material.transparent = true; outline.material.opacity = 0.95; }
-  scene.add(outline);
-  object.userData.outline = outline;
+  if (object.userData.kind === "fridge") {
+    // Solo se resalta el asa que el jugador debe agarrar, no el volumen entero del refri.
+    object.userData.outline = object.userData.handleOutline;
+    return;
+  }
+  // Los productos usan un pequeño aro en el suelo en vez de una caja gigante.
+  const marker = new THREE.Mesh(
+    new THREE.TorusGeometry(0.19, 0.018, 5, 16),
+    new THREE.MeshBasicMaterial({ color: 0xffdf65, transparent: true, opacity: 0.95 })
+  );
+  marker.rotation.x = Math.PI / 2;
+  marker.position.y = 0.025;
+  marker.visible = false;
+  object.add(marker);
+  object.userData.outline = marker;
 }
 registerInteractableOutline(fridge);
 
@@ -765,25 +785,33 @@ function getRootInteractable(object) {
   return object || null;
 }
 
+function getValidInteractableHit(hits) {
+  for (const hit of hits) {
+    const object = getRootInteractable(hit.object);
+    if (!object) continue;
+    // En el refrigerador, solo el asa física puede activar ABRIR/CERRAR.
+    if (object.userData.kind === "fridge" && hit.object !== object.userData.handle) continue;
+    const dx = player.position.x - object.position.x;
+    const dz = player.position.z - object.position.z;
+    if (Math.hypot(dx, dz) <= 3.65) return object;
+  }
+  return null;
+}
+
 function getInteractableAt(clientX, clientY) {
   const rect = renderer.domElement.getBoundingClientRect();
   pointerNdc.x = ((clientX - rect.left) / rect.width) * 2 - 1;
   pointerNdc.y = -((clientY - rect.top) / rect.height) * 2 + 1;
   raycaster.setFromCamera(pointerNdc, camera);
   const hits = raycaster.intersectObjects(interactables, true);
-  return hits.length ? getRootInteractable(hits[0].object) : null;
+  return getValidInteractableHit(hits);
 }
 
 function getFocusedInteractable() {
   if (heldProduct) return heldProduct;
   raycaster.setFromCamera(centerNdc, camera);
   const hits = raycaster.intersectObjects(interactables, true);
-  if (!hits.length) return null;
-  const object = getRootInteractable(hits[0].object);
-  if (!object) return null;
-  const dx = player.position.x - object.position.x;
-  const dz = player.position.z - object.position.z;
-  return Math.hypot(dx, dz) <= 3.65 ? object : null;
+  return getValidInteractableHit(hits);
 }
 
 function beginHold(object, source, pointerId) {
@@ -842,9 +870,7 @@ function updateInteractionUI() {
   focusedInteractable = holdTarget || getFocusedInteractable();
   for (const object of interactables) {
     const outline = object.userData.outline;
-    if (!outline) continue;
-    outline.visible = object === focusedInteractable;
-    if (outline.visible) outline.update();
+    if (outline) outline.visible = object === focusedInteractable;
   }
   if (!focusedInteractable) {
     interactionPrompt.classList.remove("visible");
@@ -854,15 +880,16 @@ function updateInteractionUI() {
   const object = focusedInteractable;
   if (object.userData.kind === "fridge") {
     interactionTitle.textContent = object.userData.isOpen ? "CERRAR" : "ABRIR";
-    interactionSubtitle.textContent = "MANTÉN PULSADO";
-    interactionSymbol.textContent = "👆";
+    interactionSubtitle.textContent = "MANTÉN PARA AGARRAR EL ASA";
+    interactionSymbol.textContent = "✊";
   } else {
     interactionTitle.textContent = object.userData.isHeld ? "SOLTAR" : "RECOGER";
-    interactionSubtitle.textContent = "MANTÉN PULSADO";
+    interactionSubtitle.textContent = object.userData.isHeld ? "MANTÉN PARA SOLTAR" : "MANTÉN PARA AGARRAR";
     interactionSymbol.textContent = "✋";
   }
-  object.getWorldPosition(projectedPromptPoint);
-  projectedPromptPoint.y += object.userData.kind === "fridge" ? 2.45 : 0.68;
+  const anchor = object.userData.interactionAnchor || object;
+  anchor.getWorldPosition(projectedPromptPoint);
+  projectedPromptPoint.y += object.userData.kind === "fridge" ? 0.48 : 0.68;
   projectedPromptPoint.project(camera);
   const x = (projectedPromptPoint.x * 0.5 + 0.5) * window.innerWidth;
   const y = (-projectedPromptPoint.y * 0.5 + 0.5) * window.innerHeight;
